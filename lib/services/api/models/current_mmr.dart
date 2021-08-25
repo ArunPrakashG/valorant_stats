@@ -5,5 +5,11 @@ class MMR {
   final int mmrChangeToLastGame;
   final int elo;
 
-  MMR(this.currentTierId, this.currentTierName, this.elo, this.mmrChangeToLastGame, this.rankingInTier);
+  MMR(
+    this.currentTierId,
+    this.currentTierName,
+    this.elo,
+    this.mmrChangeToLastGame,
+    this.rankingInTier,
+  );
 }

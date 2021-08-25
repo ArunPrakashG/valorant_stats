@@ -149,9 +149,9 @@ class ValorantClient {
     return MMR(
       json['data']['currenttier'] ?? 0,
       json['data']['currenttierpatched'] as String,
-      json['data']['ranking_in_tier'] ?? 0,
-      json['data']['mmr_change_to_last_game'] ?? 0,
       json['data']['elo'] ?? 0,
+      json['data']['mmr_change_to_last_game'] ?? 0,
+      json['data']['ranking_in_tier'] ?? 0,
     );
   }
 }

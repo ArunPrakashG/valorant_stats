@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers.dart';
-import '../../services/api/api_enums.dart';
-import '../../services/api/models/user.dart';
 import '../../services/api/valorant_client.dart';
 import '../../valorant_stats_app.dart';
 import '../add_user_page/add_user_page.dart';
+import 'widgets/user_banner.dart';
 
 class UserInfo {
   String? name;
@@ -18,50 +17,62 @@ class UserInfo {
 class UserPage extends StatelessWidget {
   const UserPage({Key? key}) : super(key: key);
 
-  Future<User?> _initialProcess(BuildContext context) async {
+  Future<bool> _init(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('user_info')) {
-      String? userInfo = prefs.getString('user_info');
-
-      if (isNullOrEmpty(userInfo)) {
-        await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
-      }
-
-      final split = userInfo!.split('#');
-      ValorantStatsApp.client ??= ValorantClient(split[0], split[1]);
-      await ValorantStatsApp.client!.initClient();
-      return ValorantStatsApp.client!.user;
+    if (!prefs.containsKey('user_info')) {
+      await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
     }
 
-    await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
+    String? userInfo = prefs.getString('user_info');
+
+    if (isNullOrEmpty(userInfo)) {
+      await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
+    }
+
+    final split = userInfo!.split('#');
+    ValorantStatsApp.client ??= ValorantClient(split[0], split[1]);
+    return ValorantStatsApp.client!.initClient();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 3,
-      ),
-      body: FutureBuilder<User?>(
-        future: _initialProcess(context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return CircularProgressIndicator();
-          }
-
-          if (snapshot.data?.name == null || snapshot.data?.tag == null) {
-            return Text('ERROR');
-          }
-
-          return Column(
-            children: [
-              Text(snapshot.data!.region.regionName),
-              Text(snapshot.data!.accountLevel.toString()),
-            ],
+    return FutureBuilder<bool>(
+      future: _init(context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          // TODO: Handle loading
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 3,
+            ),
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
-        },
-      ),
+        }
+
+        if (snapshot.hasError) {
+          // TODO: Handle error (possibly network issue or API down)
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 3,
+            ),
+            body: Center(
+              child: Text('An error occured!'),
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 3,
+          ),
+          body: UserBannerWidget(),
+        );
+      },
     );
   }
 }
