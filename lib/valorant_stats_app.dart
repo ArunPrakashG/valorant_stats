@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:valorant_api/valorant_client.dart';
 
 import 'pages/home_page/user_page.dart';
-import 'services/api/valorant_client.dart';
 
 class ValorantStatsApp extends StatelessWidget {
   const ValorantStatsApp({Key? key}) : super(key: key);

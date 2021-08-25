@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
-import '../../../services/api/api_enums.dart';
-import '../../../services/api/models/current_mmr.dart';
+import 'package:valorant_api/api_enums.dart';
+import 'package:valorant_api/models/current_mmr.dart';
 import '../../../valorant_stats_app.dart';
 import 'named_chip.dart';
 

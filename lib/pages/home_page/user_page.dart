@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:valorant_api/valorant_client.dart';
 
 import '../../helpers.dart';
-import '../../services/api/valorant_client.dart';
 import '../../valorant_stats_app.dart';
 import '../add_user_page/add_user_page.dart';
 import 'widgets/user_banner.dart';

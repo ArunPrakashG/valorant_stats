@@ -1,5 +1,5 @@
-import 'package:valorant_stats/helpers.dart';
-import 'package:valorant_stats/services/api/api_enums.dart';
+import '../api_enums.dart';
+import '../helpers.dart';
 
 class User {
   final String name;
