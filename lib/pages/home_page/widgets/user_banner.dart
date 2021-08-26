@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:valorant_api/api_enums.dart';
 import 'package:valorant_api/models/current_mmr.dart';
+import 'package:valorant_stats/pages/home_page/widgets/recent_matches.dart';
 import '../../../valorant_stats_app.dart';
 import 'named_chip.dart';
 
@@ -14,7 +15,7 @@ class UserBannerWidget extends StatefulWidget {
 }
 
 class _UserBannerWidgetState extends State<UserBannerWidget> {
-  MMR? _mmrCache;
+  static MMR? _mmrCache;
 
   Future<MMR?> _fetchMMR(BuildContext context) async {
     if (_mmrCache != null) {
@@ -151,6 +152,25 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
             linearStrokeCap: LinearStrokeCap.roundAll,
             progressColor: Colors.greenAccent,
           ),
+          Container(
+            padding: EdgeInsets.only(top: 10),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Recent Matchs',
+              style: GoogleFonts.notoSans(
+                fontSize: 26,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            height: 2,
+            color: Colors.black,
+            alignment: Alignment.centerLeft,
+            margin: EdgeInsets.only(top: 10, bottom: 10, right: MediaQuery.of(context).size.width - 150),
+          ),
+          RecentMatchesWidget(),
         ],
       ),
     );

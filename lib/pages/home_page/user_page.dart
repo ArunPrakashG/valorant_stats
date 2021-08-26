@@ -70,7 +70,9 @@ class UserPage extends StatelessWidget {
             backgroundColor: Colors.white,
             elevation: 3,
           ),
-          body: UserBannerWidget(),
+          body: SingleChildScrollView(
+            child: UserBannerWidget(),
+          ),
         );
       },
     );

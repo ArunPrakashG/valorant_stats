@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as httpClient;
+import 'package:valorant_api/models/matches.dart';
 
 import '../../helpers.dart';
 import 'api_enums.dart';
@@ -118,6 +119,27 @@ class ValorantClient {
     }
 
     return historyItems;
+  }
+
+  Future<Matches?> getMatchHistory() async {
+    if (!_hasInitProperly) {
+      return null;
+    }
+
+    final requestUri = _endpoints!.matchHistoryEndpoint(user?.region.regionName);
+    if (requestUri == null) {
+      return null;
+    }
+
+    final respones = await httpClient.get(requestUri);
+    _requestCount ??= 0;
+    _requestCount = _requestCount! + 1;
+    if (respones.statusCode != 200) {
+      return null;
+    }
+
+    final json = jsonDecode(respones.body);
+    return Matches.fromMap(json);
   }
 
   Future<MMR?> getCurrentMMR() async {
