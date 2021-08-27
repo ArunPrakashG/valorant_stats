@@ -55,12 +55,12 @@ class _PieChartWidgetState extends State<PieChartWidget> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              for (var value in widget.sectionData)
+              for (var i = 0; i < widget.sectionData.length; i++)
                 Container(
                   margin: EdgeInsets.only(bottom: 10),
                   child: Indicator(
-                    color: generateColorFromKey(value.key) ?? Colors.grey,
-                    text: value.key,
+                    color: generateColorFromKey(widget.sectionData[i].key, i) ?? Colors.grey,
+                    text: widget.sectionData[i].key,
                     isSquare: true,
                   ),
                 ),
@@ -74,14 +74,22 @@ class _PieChartWidgetState extends State<PieChartWidget> {
     );
   }
 
-  Color? generateColorFromKey(String? key) {
+  Color? generateColorFromKey(String? key, int index) {
     switch (key) {
       case 'Kills':
-        return Colors.green[300];
-      case 'Deaths':
         return Colors.red[300];
+      case 'Deaths':
+        return Colors.grey;
       case 'Assists':
         return Colors.orange[200];
+      case 'C Ability':
+        return Colors.amber[300];
+      case 'Q Ability':
+        return Colors.green[300];
+      case 'E Ability':
+        return Colors.blue[300];
+      case 'Ultimate':
+        return Colors.teal;
       case null:
         return Colors.purple[200];
     }
@@ -102,7 +110,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
 
       sectionDataList.add(
         PieChartSectionData(
-          color: generateColorFromKey(section.key),
+          color: generateColorFromKey(section.key, i),
           value: section.value,
           title: isTouched ? '${section.value.toInt()}' : '$percentage%',
           radius: radius,

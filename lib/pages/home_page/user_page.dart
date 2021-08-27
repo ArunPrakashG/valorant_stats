@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:valorant_api/valorant_client.dart';
 
@@ -58,6 +59,14 @@ class UserPage extends StatelessWidget {
             appBar: AppBar(
               backgroundColor: Colors.white,
               elevation: 3,
+              title: Text(
+                'Valorant Stats',
+                style: GoogleFonts.ubuntu(
+                  fontSize: 20,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             body: Center(
               child: Text('An error occured!'),
@@ -69,6 +78,14 @@ class UserPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 3,
+            title: Text(
+              'Valorant Stats',
+              style: GoogleFonts.ubuntu(
+                fontSize: 20,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           body: SingleChildScrollView(
             child: UserBannerWidget(),
