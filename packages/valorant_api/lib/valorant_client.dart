@@ -14,7 +14,7 @@ class ValorantClient {
   final String name;
   final String tag;
 
-  Endpoints? _endpoints;
+  late Endpoints _endpoints;
   User? user;
   DateTime? _lastRequestTime;
   int? _requestCount;
@@ -23,7 +23,7 @@ class ValorantClient {
 
   bool get _isRateLimited => _lastRequestTime != null && DateTime.now().difference(_lastRequestTime!).inSeconds >= 140;
 
-  bool get _hasInitProperly => _endpoints != null && !isNullOrEmpty(name) && !isNullOrEmpty(tag) && user != null && user!.isValid;
+  bool get _hasInitProperly => !isNullOrEmpty(name) && !isNullOrEmpty(tag) && user != null && user!.isValid;
 
   ValorantClient(this.name, this.tag) {
     _endpoints = Endpoints(name, tag);
@@ -43,10 +43,11 @@ class ValorantClient {
     }
 
     if (_hasInitProperly) {
+      print('Already initiated.');
       return true;
     }
 
-    final requestUrl = _endpoints?.accountEndpoint();
+    final requestUrl = _endpoints.accountEndpoint();
 
     if (requestUrl == null) {
       return false;
@@ -54,7 +55,7 @@ class ValorantClient {
 
     final response = await httpClient.get(requestUrl);
 
-    print('requesting user data');
+    print('Requesting user data');
 
     if (response.statusCode != 200) {
       return false;
@@ -82,7 +83,7 @@ class ValorantClient {
       return null;
     }
 
-    final requestUri = _endpoints!.mmrHistoryByPuuidEndpoint(user?.puuid, user?.region.regionName);
+    final requestUri = _endpoints.mmrHistoryByPuuidEndpoint(user?.puuid, user?.region.regionName);
 
     if (requestUri == null) {
       return null;
@@ -126,7 +127,7 @@ class ValorantClient {
       return null;
     }
 
-    final requestUri = _endpoints!.matchHistoryEndpoint(user?.region.regionName);
+    final requestUri = _endpoints.matchHistoryEndpoint(user?.region.regionName);
     if (requestUri == null) {
       return null;
     }
@@ -147,7 +148,7 @@ class ValorantClient {
       return null;
     }
 
-    final requestUri = _endpoints!.currentMMREndpoint(user?.puuid, user?.region.regionName);
+    final requestUri = _endpoints.currentMMREndpoint(user?.puuid, user?.region.regionName);
 
     if (requestUri == null) {
       return null;

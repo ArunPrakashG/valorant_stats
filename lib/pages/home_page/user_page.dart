@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:valorant_api/valorant_client.dart';
@@ -19,22 +20,23 @@ class UserPage extends StatelessWidget {
   const UserPage({Key? key}) : super(key: key);
 
   Future<bool> _init(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
+
     if (!prefs.containsKey('user_info')) {
-      await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
+      await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AddUserPage()));
       return false;
     }
 
     String? userInfo = prefs.getString('user_info');
 
     if (isNullOrEmpty(userInfo)) {
-      await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
+      await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AddUserPage()));
       return false;
     }
 
     final split = userInfo!.split('#');
     ValorantStatsApp.client ??= ValorantClient(split[0], split[1]);
-    return ValorantStatsApp.client!.initClient();
+    return await ValorantStatsApp.client!.initClient();
   }
 
   @override
@@ -43,7 +45,6 @@ class UserPage extends StatelessWidget {
       future: _init(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          // TODO: Handle loading
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.white,
@@ -55,40 +56,71 @@ class UserPage extends StatelessWidget {
           );
         }
 
-        /*
-        if (snapshot.hasError) {
-          // TODO: Handle error (possibly network issue or API down)
+        if (!snapshot.data!) {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.white,
-              elevation: 3,
+              elevation: 8,
+              centerTitle: true,
               title: Text(
                 'Valorant Stats',
                 style: GoogleFonts.ubuntu(
-                  fontSize: 20,
+                  fontSize: 24,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              leading: const SizedBox.shrink(),
             ),
-            body: Center(
-              child: Text('An error occured!'),
+            body: Container(
+              padding: EdgeInsets.all(15),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'ERROR!',
+                    style: GoogleFonts.ubuntu(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('If your are seeing this page, then that means an unknown error has occured.'),
+                  Text('Check and verify you have stable network connectivity.'),
+                  Text('If your network is stable, then it means API (https://api.henrikdev.xyz/) is down, possibly for maintance.'),
+                ],
+              ),
             ),
           );
         }
-*/
+
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
-            elevation: 3,
+            elevation: 8,
+            centerTitle: true,
             title: Text(
               'Valorant Stats',
               style: GoogleFonts.ubuntu(
-                fontSize: 20,
+                fontSize: 24,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
+            leading: const SizedBox.shrink(),
+            actions: [
+              Tooltip(
+                message: 'Remove this account',
+                child: IconButton(
+                  onPressed: () async => _onRemoveButtonPressed(context),
+                  icon: Icon(
+                    Icons.delete_outline_sharp,
+                    color: Colors.black,
+                  ),
+                ),
+              )
+            ],
           ),
           body: SingleChildScrollView(
             child: UserBannerWidget(),
@@ -96,5 +128,22 @@ class UserPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _onRemoveButtonPressed(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    await Fluttertoast.showToast(
+      msg: 'Your IGN and Tag has been successfully cleared!',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16,
+    );
+
+    await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AddUserPage()));
   }
 }

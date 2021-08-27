@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:valorant_api/models/matches.dart';
-import 'package:valorant_stats/helpers.dart';
-import 'package:valorant_stats/pages/home_page/widgets/pie_chart.dart';
 
+import '../../../helpers.dart';
 import '../../../valorant_stats_app.dart';
+import 'pie_chart.dart';
 
 class RecentMatchesWidget extends StatelessWidget {
   RecentMatchesWidget({Key? key}) : super(key: key);
@@ -26,15 +26,15 @@ class RecentMatchesWidget extends StatelessWidget {
       future: _getRecentMatchesData(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          // TODO: Loading indicator
           return Center(
             child: CircularProgressIndicator(),
           );
         }
 
         if (snapshot.hasError) {
-          // TODO: Error Indicator
-          return Text('error');
+          return Center(
+            child: Text('Error occured while fetching your recent matches data.'),
+          );
         }
 
         //var timeStamp = DateTime.fromMicrosecondsSinceEpoch(2580111);
@@ -56,10 +56,20 @@ class RecentMatchesWidget extends StatelessWidget {
     var match = data?.data[index];
 
     if (match == null) {
-      // TODO: handle error
+      return Card(
+        elevation: 6,
+        shadowColor: Colors.blue[100],
+        margin: EdgeInsets.symmetric(vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Center(
+          child: Text('Error occured!'),
+        ),
+      );
     }
 
-    final currentPlayer = match!.players?.allPlayers?.singleWhere((element) => element.name == ValorantStatsApp.client!.user!.name);
+    final currentPlayer = match.players?.allPlayers?.singleWhere((element) => element.name == ValorantStatsApp.client!.user!.name);
 
     return Card(
       elevation: 6,

@@ -3,9 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:valorant_api/api_enums.dart';
 import 'package:valorant_api/models/current_mmr.dart';
-import 'package:valorant_stats/pages/home_page/widgets/recent_matches.dart';
+
 import '../../../valorant_stats_app.dart';
 import 'named_chip.dart';
+import 'recent_matches.dart';
 
 class UserBannerWidget extends StatefulWidget {
   const UserBannerWidget({Key? key}) : super(key: key);
@@ -71,15 +72,15 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
                   future: _fetchMMR(context),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState != ConnectionState.done) {
-                      // TODO: Loading indicator
                       return Center(
                         child: CircularProgressIndicator(),
                       );
                     }
 
                     if (snapshot.hasError) {
-                      // TODO: Error Indicator
-                      return Text('error');
+                      return Center(
+                        child: Text('Error Occured while fetching your match stats.'),
+                      );
                     }
 
                     final rank = getRankWithTierId(snapshot.data!.currentTierId);
@@ -171,6 +172,26 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
             margin: EdgeInsets.only(top: 10, bottom: 10, right: MediaQuery.of(context).size.width - 150),
           ),
           RecentMatchesWidget(),
+          Container(
+            margin: EdgeInsets.only(top: 15),
+            padding: EdgeInsets.all(10),
+            child: Text(
+              'Valorant Stats is not affiliated with Riot Games.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.ubuntu(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 15),
+            padding: EdgeInsets.all(10),
+            child: Text(
+              'This app is made possible using API provided by henrikdev',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.ubuntu(),
+            ),
+          ),
         ],
       ),
     );
