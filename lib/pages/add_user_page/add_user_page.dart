@@ -25,12 +25,6 @@ class AddUserPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('ADD PLAYER'),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,

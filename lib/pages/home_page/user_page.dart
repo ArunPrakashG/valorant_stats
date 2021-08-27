@@ -22,12 +22,14 @@ class UserPage extends StatelessWidget {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('user_info')) {
       await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
+      return false;
     }
 
     String? userInfo = prefs.getString('user_info');
 
     if (isNullOrEmpty(userInfo)) {
       await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddUserPage(), fullscreenDialog: true));
+      return false;
     }
 
     final split = userInfo!.split('#');
@@ -53,6 +55,7 @@ class UserPage extends StatelessWidget {
           );
         }
 
+        /*
         if (snapshot.hasError) {
           // TODO: Handle error (possibly network issue or API down)
           return Scaffold(
@@ -73,7 +76,7 @@ class UserPage extends StatelessWidget {
             ),
           );
         }
-
+*/
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,

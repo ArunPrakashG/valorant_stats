@@ -15,7 +15,7 @@ class ValorantStatsApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: UserPage(),
+      home: SafeArea(top: false, child: const UserPage()),
     );
   }
 }
