@@ -34,6 +34,8 @@ class UserPage extends StatelessWidget {
     }
 
     final split = userInfo!.split('#');
+    Client.of(context)!.client!.name = split[0];
+    Client.of(context)!.client!.tag = split[1];
     return await Client.of(context)!.client!.initClient(split[0], split[1]);
   }
 
@@ -121,6 +123,7 @@ class UserPage extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
             child: UserBannerWidget(),
           ),
         );
@@ -131,6 +134,10 @@ class UserPage extends StatelessWidget {
   void _onRemoveButtonPressed(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+
+    Client.of(context)!.client!.name = '';
+    Client.of(context)!.client!.tag = '';
+    Client.of(context)!.client!.user = null;
 
     await Fluttertoast.showToast(
       msg: 'Your IGN and Tag has been successfully cleared!',

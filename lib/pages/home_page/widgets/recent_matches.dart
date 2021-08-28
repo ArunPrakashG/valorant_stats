@@ -10,12 +10,7 @@ class RecentMatchesWidget extends StatelessWidget {
   RecentMatchesWidget({Key? key}) : super(key: key);
 
   Future<Matches?> _getRecentMatchesData(BuildContext context) async {
-    if (Client.of(context)?.matchesCache != null && Client.of(context)!.matchesCache!.data.isNotEmpty) {
-      return Client.of(context)!.matchesCache;
-    }
-
-    Client.of(context)!.matchesCache = await Client.of(context)!.client!.getMatchHistory();
-    return Client.of(context)!.matchesCache;
+    return await Client.of(context)!.client!.getMatchHistory();
   }
 
   @override
@@ -31,18 +26,21 @@ class RecentMatchesWidget extends StatelessWidget {
 
         if (snapshot.hasError) {
           return Center(
-            child: Text('Error occured while fetching your recent matches data.'),
+            child: Text('Error occured while fetching your recent matches data. The API must be down for maintance.'),
           );
         }
 
-        //var timeStamp = DateTime.fromMicrosecondsSinceEpoch(2580111);
-        //print(DateTime(1970, 1, 1).difference(timeStamp).inHours);
+        if (snapshot.data == null || snapshot.data!.data.isEmpty) {
+          return Center(
+            child: Text('No recent matches found.'),
+          );
+        }
 
         return SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
-              for (var i = 0; i < snapshot.data!.data.length; i++) generateStatsWidgetForIndex(context, i, snapshot.data),
+              for (var i = 0; i < snapshot.data!.data.length; i++) generateStatsWidgetForIndex(context, snapshot.data!.data[i]),
             ],
           ),
         );
@@ -50,9 +48,7 @@ class RecentMatchesWidget extends StatelessWidget {
     );
   }
 
-  Widget generateStatsWidgetForIndex(BuildContext context, int index, Matches? data) {
-    var match = data?.data[index];
-
+  Widget generateStatsWidgetForIndex(BuildContext context, Match? match) {
     if (match == null) {
       return Card(
         elevation: 6,
@@ -67,7 +63,16 @@ class RecentMatchesWidget extends StatelessWidget {
       );
     }
 
-    final currentPlayer = match.players?.allPlayers?.singleWhere((element) => element.name == Client.of(context)!.client!.user!.name);
+    Player? currentPlayer;
+    for (var player in match.players!.allPlayers!) {
+      if ((player.name?.toLowerCase() == Client.of(context)!.client!.user?.name.toLowerCase()) && (player.tag == Client.of(context)!.client!.user?.tag)) {
+        currentPlayer = player;
+      }
+    }
+
+    if (currentPlayer == null) {
+      debugPrint('Current player is null.');
+    }
 
     return Card(
       elevation: 6,
@@ -162,13 +167,7 @@ class RecentMatchesWidget extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            PieChartWidget(
-              sectionData: [
-                MapEntry('Kills', double.parse(currentPlayer?.stats?.kills.toString() ?? '0.0')),
-                MapEntry('Deaths', double.parse(currentPlayer?.stats?.deaths.toString() ?? '0.0')),
-                MapEntry('Assists', double.parse(currentPlayer?.stats?.assists.toString() ?? '0.0')),
-              ],
-            ),
+            renderIfAllowedKDA(currentPlayer),
             Text(
               'Ability Usage',
               style: GoogleFonts.notoSans(
@@ -184,6 +183,23 @@ class RecentMatchesWidget extends StatelessWidget {
     );
   }
 
+  Widget renderIfAllowedKDA(Player? player) {
+    if (player == null) {
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Text('Failed to get your KDA data.'),
+      );
+    }
+
+    return PieChartWidget(
+      sectionData: [
+        MapEntry('Kills', double.parse(player.stats?.kills.toString() ?? '0.0')),
+        MapEntry('Deaths', double.parse(player.stats?.deaths.toString() ?? '0.0')),
+        MapEntry('Assists', double.parse(player.stats?.assists.toString() ?? '0.0')),
+      ],
+    );
+  }
+
   Widget renderIfAllowed(String? mode, Player? currentPlayer) {
     if (mode?.toLowerCase() == 'deathmatch') {
       return Container(
@@ -192,12 +208,19 @@ class RecentMatchesWidget extends StatelessWidget {
       );
     }
 
+    if (currentPlayer == null) {
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Text('Failed to get your ability usage data.'),
+      );
+    }
+
     return PieChartWidget(
       sectionData: [
-        MapEntry('C Ability', double.parse(currentPlayer?.abilityCasts?.cCast.toString() ?? '0.0')),
-        MapEntry('Q Ability', double.parse(currentPlayer?.abilityCasts?.qCast.toString() ?? '0.0')),
-        MapEntry('E Ability', double.parse(currentPlayer?.abilityCasts?.eCast.toString() ?? '0.0')),
-        MapEntry('Ultimate', double.parse(currentPlayer?.abilityCasts?.xCast.toString() ?? '0.0')),
+        MapEntry('C Ability', double.parse(currentPlayer.abilityCasts?.cCast.toString() ?? '0.0')),
+        MapEntry('Q Ability', double.parse(currentPlayer.abilityCasts?.qCast.toString() ?? '0.0')),
+        MapEntry('E Ability', double.parse(currentPlayer.abilityCasts?.eCast.toString() ?? '0.0')),
+        MapEntry('Ultimate', double.parse(currentPlayer.abilityCasts?.xCast.toString() ?? '0.0')),
       ],
     );
   }

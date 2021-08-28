@@ -11,10 +11,10 @@ import 'models/mm_history.dart';
 import 'models/user.dart';
 
 class ValorantClient {
-  late String name;
-  late String tag;
+  String name = '';
+  String tag = '';
 
-  late Endpoints _endpoints;
+  Endpoints _endpoints = Endpoints('', '');
   User? user;
   DateTime? _lastRequestTime;
   int? _requestCount;

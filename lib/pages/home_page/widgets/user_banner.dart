@@ -15,13 +15,55 @@ class UserBannerWidget extends StatefulWidget {
 }
 
 class _UserBannerWidgetState extends State<UserBannerWidget> {
+  MMR? currentMMR;
+
   Future<MMR?> _fetchMMR(BuildContext context) async {
-    if (Client.of(context)!.mmrCache != null) {
-      return Client.of(context)!.mmrCache;
+    return currentMMR = await Client.of(context)!.client!.getCurrentMMR();
+  }
+
+  Future<Widget> _progressBuilder(BuildContext context) async {
+    while (currentMMR == null) {
+      await Future.delayed(const Duration(seconds: 1), () => "1");
     }
 
-    Client.of(context)!.mmrCache = await Client.of(context)!.client!.getCurrentMMR();
-    return Client.of(context)!.mmrCache;
+    return LinearPercentIndicator(
+      animation: true,
+      lineHeight: 30.0,
+      animationDuration: 1000,
+      percent: (currentMMR?.rankingInTier ?? 0) / 100,
+      center: Text(
+        '${(currentMMR?.rankingInTier ?? 0)} / 100',
+        style: GoogleFonts.ptSansCaption(
+          fontSize: 18,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      leading: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        alignment: Alignment.centerLeft,
+        child: ImageIcon(
+          NetworkImage(
+            RankEventTypes.Demoted.getIconUri().toString(),
+            scale: 0.8,
+          ),
+          color: Colors.grey,
+        ),
+      ),
+      trailing: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        alignment: Alignment.centerRight,
+        child: ImageIcon(
+          NetworkImage(
+            RankEventTypes.Promoted.getIconUri().toString(),
+            scale: 0.8,
+          ),
+          color: Colors.green,
+        ),
+      ),
+      linearStrokeCap: LinearStrokeCap.roundAll,
+      progressColor: Colors.greenAccent,
+    );
   }
 
   @override
@@ -70,9 +112,30 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
                       );
                     }
 
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Error Occured while fetching your match stats.'),
+                    if (snapshot.hasError || snapshot.data == null) {
+                      return Container(
+                        alignment: Alignment.centerRight,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.network(
+                              Ranks.Unranked.getIconUri().toString(),
+                              fit: BoxFit.fitHeight,
+                              filterQuality: FilterQuality.high,
+                              isAntiAlias: true,
+                              alignment: Alignment.centerRight,
+                              height: 130,
+                            ),
+                            Text(
+                              '~ Unknown ~',
+                              style: GoogleFonts.ubuntu(
+                                color: Colors.black,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     }
 
@@ -108,43 +171,17 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
             ],
           ),
           const SizedBox(height: 30),
-          LinearPercentIndicator(
-            animation: true,
-            lineHeight: 30.0,
-            animationDuration: 1000,
-            percent: (Client.of(context)!.mmrCache?.rankingInTier ?? 0) / 100,
-            center: Text(
-              '${(Client.of(context)!.mmrCache?.rankingInTier ?? 0)} / 100',
-              style: GoogleFonts.ptSansCaption(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            leading: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              alignment: Alignment.centerLeft,
-              child: ImageIcon(
-                NetworkImage(
-                  RankEventTypes.Demoted.getIconUri().toString(),
-                  scale: 0.8,
-                ),
-                color: Colors.grey,
-              ),
-            ),
-            trailing: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              alignment: Alignment.centerRight,
-              child: ImageIcon(
-                NetworkImage(
-                  RankEventTypes.Promoted.getIconUri().toString(),
-                  scale: 0.8,
-                ),
-                color: Colors.green,
-              ),
-            ),
-            linearStrokeCap: LinearStrokeCap.roundAll,
-            progressColor: Colors.greenAccent,
+          FutureBuilder<Widget>(
+            future: _progressBuilder(context),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              return snapshot.data!;
+            },
           ),
           Container(
             padding: EdgeInsets.only(top: 10),
