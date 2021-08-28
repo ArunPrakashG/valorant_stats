@@ -1,4 +1,4 @@
-package com.example.valorant_stats
+package synnetic.valorant.stats
 
 import io.flutter.embedding.android.FlutterActivity
 

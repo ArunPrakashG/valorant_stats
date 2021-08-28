@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:valorant_api/valorant_client.dart';
+import 'package:valorant_stats/client.dart';
 
 import '../../helpers.dart';
-import '../../valorant_stats_app.dart';
 import '../add_user_page/add_user_page.dart';
 import 'widgets/user_banner.dart';
 
@@ -35,8 +34,7 @@ class UserPage extends StatelessWidget {
     }
 
     final split = userInfo!.split('#');
-    ValorantStatsApp.client ??= ValorantClient(split[0], split[1]);
-    return await ValorantStatsApp.client!.initClient();
+    return await Client.of(context)!.client!.initClient(split[0], split[1]);
   }
 
   @override

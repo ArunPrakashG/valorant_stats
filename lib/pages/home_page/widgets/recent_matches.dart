@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:valorant_api/models/matches.dart';
+import 'package:valorant_stats/client.dart';
 
 import '../../../helpers.dart';
-import '../../../valorant_stats_app.dart';
 import 'pie_chart.dart';
 
 class RecentMatchesWidget extends StatelessWidget {
   RecentMatchesWidget({Key? key}) : super(key: key);
 
-  static Matches? _matches;
-
   Future<Matches?> _getRecentMatchesData(BuildContext context) async {
-    if (_matches != null && _matches!.data.isNotEmpty) {
-      return _matches;
+    if (Client.of(context)?.matchesCache != null && Client.of(context)!.matchesCache!.data.isNotEmpty) {
+      return Client.of(context)!.matchesCache;
     }
 
-    _matches ??= await ValorantStatsApp.client!.getMatchHistory();
-    return _matches;
+    Client.of(context)!.matchesCache = await Client.of(context)!.client!.getMatchHistory();
+    return Client.of(context)!.matchesCache;
   }
 
   @override
@@ -69,7 +67,7 @@ class RecentMatchesWidget extends StatelessWidget {
       );
     }
 
-    final currentPlayer = match.players?.allPlayers?.singleWhere((element) => element.name == ValorantStatsApp.client!.user!.name);
+    final currentPlayer = match.players?.allPlayers?.singleWhere((element) => element.name == Client.of(context)!.client!.user!.name);
 
     return Card(
       elevation: 6,

@@ -11,8 +11,8 @@ import 'models/mm_history.dart';
 import 'models/user.dart';
 
 class ValorantClient {
-  final String name;
-  final String tag;
+  late String name;
+  late String tag;
 
   late Endpoints _endpoints;
   User? user;
@@ -25,9 +25,7 @@ class ValorantClient {
 
   bool get _hasInitProperly => !isNullOrEmpty(name) && !isNullOrEmpty(tag) && user != null && user!.isValid;
 
-  ValorantClient(this.name, this.tag) {
-    _endpoints = Endpoints(name, tag);
-  }
+  ValorantClient();
 
   bool _canRequest() {
     if (_requestCount == null) {
@@ -37,14 +35,19 @@ class ValorantClient {
     return !_isRateLimited || _requestCount! < 250;
   }
 
-  Future<bool> initClient() async {
-    if (isNullOrEmpty(name) || isNullOrEmpty(tag)) {
-      return false;
-    }
-
+  Future<bool> initClient(String name, String tag) async {
     if (_hasInitProperly) {
       print('Already initiated.');
       return true;
+    }
+
+    name = name;
+    tag = tag;
+
+    _endpoints = Endpoints(name, tag);
+
+    if (isNullOrEmpty(name) || isNullOrEmpty(tag)) {
+      return false;
     }
 
     final requestUrl = _endpoints.accountEndpoint();

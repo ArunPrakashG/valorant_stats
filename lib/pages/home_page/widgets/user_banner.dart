@@ -3,8 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:valorant_api/api_enums.dart';
 import 'package:valorant_api/models/current_mmr.dart';
-
-import '../../../valorant_stats_app.dart';
+import 'package:valorant_stats/client.dart';
 import 'named_chip.dart';
 import 'recent_matches.dart';
 
@@ -16,19 +15,13 @@ class UserBannerWidget extends StatefulWidget {
 }
 
 class _UserBannerWidgetState extends State<UserBannerWidget> {
-  static MMR? _mmrCache;
-
   Future<MMR?> _fetchMMR(BuildContext context) async {
-    if (_mmrCache != null) {
-      return _mmrCache;
+    if (Client.of(context)!.mmrCache != null) {
+      return Client.of(context)!.mmrCache;
     }
 
-    final mmrRespose = await ValorantStatsApp.client!.getCurrentMMR();
-    setState(() {
-      _mmrCache = mmrRespose;
-    });
-
-    return _mmrCache;
+    Client.of(context)!.mmrCache = await Client.of(context)!.client!.getCurrentMMR();
+    return Client.of(context)!.mmrCache;
   }
 
   @override
@@ -41,11 +34,11 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
             children: [
               Column(
                 children: [
-                  NamedChipWidget(labelText: 'region', valueText: ValorantStatsApp.client?.user?.region.humanizeRegionName() ?? '~'),
+                  NamedChipWidget(labelText: 'region', valueText: Client.of(context)!.client?.user?.region.humanizeRegionName() ?? '~'),
                   const SizedBox(height: 10),
                   RichText(
                     text: TextSpan(
-                      text: ValorantStatsApp.client!.user!.name,
+                      text: Client.of(context)!.client?.user?.name,
                       style: GoogleFonts.fjallaOne(
                         fontSize: 32,
                         color: Colors.black,
@@ -53,7 +46,7 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
                       ),
                       children: [
                         TextSpan(
-                          text: '  #${ValorantStatsApp.client!.user!.tag}',
+                          text: '  #${Client.of(context)!.client?.user?.tag}',
                           style: GoogleFonts.fjallaOne(
                             fontSize: 20,
                             color: Colors.black54,
@@ -64,7 +57,7 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  NamedChipWidget(labelText: 'account level', valueText: ValorantStatsApp.client!.user!.accountLevel.toString()),
+                  NamedChipWidget(labelText: 'account level', valueText: Client.of(context)!.client?.user?.accountLevel.toString()),
                 ],
               ),
               Expanded(
@@ -119,9 +112,9 @@ class _UserBannerWidgetState extends State<UserBannerWidget> {
             animation: true,
             lineHeight: 30.0,
             animationDuration: 1000,
-            percent: (_mmrCache?.rankingInTier ?? 0) / 100,
+            percent: (Client.of(context)!.mmrCache?.rankingInTier ?? 0) / 100,
             center: Text(
-              '${(_mmrCache?.rankingInTier ?? 0)} / 100',
+              '${(Client.of(context)!.mmrCache?.rankingInTier ?? 0)} / 100',
               style: GoogleFonts.ptSansCaption(
                 fontSize: 18,
                 color: Colors.black,
